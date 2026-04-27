@@ -153,7 +153,7 @@ $data = $koneksi->query("
                                 <td class="px-8 py-6">
                                     <?php if ($d['status'] == 'menunggu'): ?>
                                         <div class="flex items-center gap-2 text-slate-500 font-black text-[10px] uppercase tracking-widest">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse"></span> Menunggu
+                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-500 animate-pulse"></span> Menunggu Persetujuan
                                         </div>
                                     <?php elseif ($d['status'] == 'dipinjam'): ?>
                                         <div class="flex items-center gap-2 text-amber-500 font-black text-[10px] uppercase tracking-widest">
