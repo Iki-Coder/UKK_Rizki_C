@@ -43,7 +43,6 @@ $countTransaksi = $koneksi->query("SELECT COUNT(*) as total FROM transaksi WHERE
         }
         .text-gradient {
             background: linear-gradient(to r, #3b82f6, #818cf8, #a78bfa);
-            -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
     </style>
@@ -107,10 +106,12 @@ $countTransaksi = $koneksi->query("SELECT COUNT(*) as total FROM transaksi WHERE
                 </div>
             </div>
         </div>
+
+        <h3 class="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em] mb-8">Quick Actions</h3>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
             <a href="../barang/index.php" class="glass-card p-8 rounded-[2.5rem] border-blue-500/30 bg-blue-600/10 hover:-translate-y-2 transition-all duration-300 text-center flex flex-col items-center group">
                 <div class="h-16 w-16 rounded-2xl bg-blue-600/20 mb-5 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">📚</div>
-                <span class="text-[11px] font-black text-blue-400 uppercase tracking-widest">Katalog Buku</span>
+                <span class="text-[11px] font-black text-blue-400 uppercase tracking-widest">Inventory</span>
             </a>
             <a href="../transaksi/index.php" class="glass-card p-8 rounded-[2.5rem] border-indigo-500/30 bg-indigo-600/10 hover:-translate-y-2 transition-all duration-300 text-center flex flex-col items-center group">
                 <div class="h-16 w-16 rounded-2xl bg-indigo-600/20 mb-5 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">📄</div>
@@ -126,5 +127,6 @@ $countTransaksi = $koneksi->query("SELECT COUNT(*) as total FROM transaksi WHERE
             </a>
         </div>
     </main>
+
 </body>
-</html>
+</html> 

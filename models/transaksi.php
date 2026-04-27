@@ -19,14 +19,12 @@ class Transaksi {
         return $this->db->insert_id;
     }
 
-    // tambah detail barang
     public function tambahBarang($id_transaksi, $id_barang, $jumlah) {
         $this->db->query("
             INSERT INTO detail_transaksi 
             VALUES('', '$id_transaksi', '$id_barang', '$jumlah')
         ");
 
-        // update stok
         $this->db->query("
             UPDATE barang 
             SET stok = stok - $jumlah 

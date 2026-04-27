@@ -23,7 +23,7 @@
                 BIBLIO<span class="text-blue-500">TECH</span>
             </a>
             <div class="flex items-center gap-6">
-                <a href="login.php" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Masuk</a>
+                <a href="auth/login.php" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Masuk</a>
                 <a href="register.php" class="text-sm font-semibold bg-white text-black py-2.5 px-6 rounded-full hover:bg-slate-200 transition-all active:scale-95 shadow-lg shadow-white/5">
                     Daftar Akun
                 </a>
@@ -43,7 +43,6 @@
             </p>
             
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <a href="login.php" class="w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 font-bold text-white bg-blue-600 rounded-2xl transition-all hover:bg-blue-500 hover:-translate-y-1 active:scale-95 shadow-[0_20px_40px_-15px_rgba(37,99,235,0.4)]">
                 <a href="auth/login.php" class="w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 font-bold text-white bg-blue-600 rounded-2xl transition-all hover:bg-blue-500 hover:-translate-y-1 active:scale-95 shadow-[0_20px_40px_-15px_rgba(37,99,235,0.4)]">
                     Pinjam Buku
                 </a>

@@ -10,15 +10,14 @@ class Barang {
         return $this->db->query("SELECT * FROM barang");
     }
 
-    public function getById($id) {
-        $stmt = $this->db->prepare("SELECT * FROM barang WHERE id=?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        return $stmt->get_result()->fetch_assoc();
+    public function getTotalStok() {
+        $result = $this->db->query("SELECT SUM(stok) as total_buku FROM barang");
+        $data = $result->fetch_assoc();
+        return $data['total_buku'] ?? 0;
     }
 
-    public function getStok($id) {
-        $stmt = $this->db->prepare("SELECT stok FROM barang WHERE id=?");
+    public function getById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM barang WHERE id=?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
