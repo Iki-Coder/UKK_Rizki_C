@@ -17,7 +17,6 @@ if (isset($_POST['simpan'])) {
     $jenis = $_POST['jenis'];
     $stok = $_POST['stok'];
     
-    // Logic asli lu tetap jalan
     $koneksi->query("INSERT INTO barang VALUES('', '$nama', '$jenis', '$stok', '')");
     header("Location: index.php");
 }
@@ -33,7 +32,6 @@ if (isset($_POST['simpan'])) {
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script>
-        // Cek tema biar sinkron sama dashboard
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
