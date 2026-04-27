@@ -1,18 +1,25 @@
 <?php
 session_start();
+
 require '../config/Database.php';
-require '../models/Barang.php';
+require '../models/Transaksi.php';
 
 $db = new Database();
 $koneksi = $db->koneksi;
-$barangModel = new Barang($koneksi);
+
+$transaksi = new Transaksi($koneksi);
 
 if (!isset($_SESSION['login'])) {
     header("Location: ../auth/login.php");
     exit;
 }
 
-$data = $barangModel->getAll();
+$data = $koneksi->query("
+    SELECT t.*, p.username 
+    FROM transaksi t 
+    JOIN pengguna p ON t.id_pengguna = p.id
+    ORDER BY t.id DESC
+");
 ?>
 
 <!DOCTYPE html>
@@ -20,95 +27,101 @@ $data = $barangModel->getAll();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koleksi Buku | Bibliotech</title>
+    <title>Manajemen Transaksi | Bibliotech</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-            </style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #080b14;
+            color: #f1f5f9;
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
 </head>
-<body class="bg-[#0b0f1a] text-slate-200 min-h-screen p-6 md:p-12">
+<body class="min-h-screen p-6 md:p-12 relative overflow-x-hidden">
 
     <div class="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div class="absolute top-[-10%] right-[-5%] w-[30%] h-[30%] bg-blue-600/5 blur-[100px] rounded-full"></div>
+        <div class="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full"></div>
+        <div class="absolute bottom-[-10%] left-[-5%] w-[30%] h-[30%] bg-purple-600/5 blur-[100px] rounded-full"></div>
     </div>
 
-    <div class="max-w-6xl mx-auto relative z-10">
-        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+    <div class="max-w-7xl mx-auto relative z-10">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div>
-                <nav class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-3">
-                    <a href="../admin/index.php" class="hover:text-blue-500 transition-colors">Dashboard</a>
-                    <span>/</span>
-                    <span class="text-slate-300">Koleksi Buku</span>
-                </nav>
-                <h1 class="text-4xl font-extrabold text-white tracking-tight">Koleksi Buku</h1>
+
+                <h2 class="text-4xl font-black tracking-tighter text-white">Manajemen Peminjaman</h2>
+                <p class="text-slate-500 mt-2 font-medium">Kelola persetujuan dan lihat riwayat</p>
             </div>
             
-            <a href="tambah.php" class="inline-flex items-center justify-center px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl transition-all shadow-xl shadow-blue-600/20 active:scale-95 group">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2.5 group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Tambah Buku Baru
+            <div class="flex items-center gap-4">
+                <a href="../admin/index.php" class="px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all border border-white/5 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                    Dashboard
+                </a>
+                <a href="tambah.php" class="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                    Input Manual
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <a href="persetujuan.php" class="glass-card p-6 rounded-[2rem] flex items-center justify-between group hover:bg-white/[0.05] transition-all border-amber-500/10">
+                <div class="flex items-center gap-5">
+                    <div class="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-sm tracking-tight text-white uppercase">Butuh Persetujuan</h3>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest font-black mt-0.5">Cek Permintaan Baru</p>
+                    </div>
+                </div>
+                <div class="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-amber-500 group-hover:translate-x-1 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                </div>
             </a>
         </div>
 
-        <div class="bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 rounded-[2rem] shadow-2xl overflow-hidden">
+        <div class="glass-card rounded-[2.5rem] overflow-hidden shadow-2xl">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-slate-800/50 text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black italic">
-                            <th class="px-8 py-6 text-center">No</th>
-                            <th class="px-8 py-6">Judul & Kategori</th>
-                            <th class="px-8 py-6 text-center">Persediaan</th>
-                            <th class="px-8 py-6 text-right">Aksi</th>
+                        <tr class="bg-white/[0.02] text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black border-b border-white/5">
+                            <th class="px-8 py-6">ID Log</th>
+                            <th class="px-8 py-6">User / Peminjam</th>
+                            <th class="px-8 py-6">Timeline</th>
+                            <th class="px-8 py-6 text-right">Status</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800/30">
-                        <?php $no=1; while($d = $data->fetch_assoc()) { ?>
-                        <tr class="hover:bg-blue-500/[0.03] transition-colors group">
-                            <td class="px-8 py-6 text-center text-slate-600 font-bold text-xs opacity-50 italic">
-                                #<?= str_pad($no++, 2, '0', STR_PAD_LEFT) ?>
+                    <tbody class="divide-y divide-white/5">
+                        <?php $no=1; while($d = $data->fetch_assoc()) { 
+                            $status_ui = [
+                                'menunggu' => 'text-slate-400 bg-slate-500/10 border-slate-500/10',
+                                'dipinjam' => 'text-amber-500 bg-amber-500/10 border-amber-500/10',
+                                'kembali'  => 'text-emerald-500 bg-emerald-500/10 border-emerald-500/10'
+                            ];
+                            $current_status = $status_ui[$d['status']] ?? 'text-slate-400';
+                        ?>
+                        <tr class="hover:bg-white/[0.03] transition-all group">
+                            <td class="px-8 py-6 font-mono text-xs text-slate-600">#<?= $d['id'] ?></td>
+                            <td class="px-8 py-6">
+                                <div class="text-white font-bold group-hover:text-blue-400 transition-colors uppercase tracking-tight"><?= $d['username'] ?></div>
+                                <div class="text-[9px] text-slate-600 mt-1 uppercase font-black tracking-widest">Siswa Terdaftar</div>
                             </td>
                             <td class="px-8 py-6">
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-white text-base group-hover:text-blue-400 transition-colors tracking-tight"><?= $d['nama_barang'] ?></span>
-                                    <span class="text-[10px] text-slate-500 mt-1 uppercase tracking-[0.15em] font-bold"><?= $d['jenis'] ?></span>
-                                </div>
+                                <div class="text-xs font-bold text-slate-300"><?= date('d M Y', strtotime($d['tanggal_pinjam'])) ?></div>
+                                <div class="text-[9px] text-slate-600 mt-1 uppercase font-black tracking-widest">Est. Kembali: <?= date('d M Y', strtotime($d['tanggal_kembali'])) ?></div>
                             </td>
-                            <td class="px-8 py-6 text-center">
-                                <div class="flex flex-col items-center">
-                                    <span class="text-sm font-black tracking-widest <?= $d['stok'] > 5 ? 'text-white' : 'text-rose-500 animate-pulse' ?>">
-                                        <?= $d['stok'] ?>
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="px-8 py-6">
-                                <div class="flex justify-end items-center gap-3">
-                                    <a href="edit.php?id=<?= $d['id'] ?>" class="p-3 bg-slate-800/50 text-slate-400 hover:text-amber-400 hover:bg-amber-400/10 rounded-xl transition-all border border-transparent hover:border-amber-400/20">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </a>
-                                    <button onclick="confirmDelete('hapus.php?id=<?= $d['id'] ?>')" class="p-3 bg-slate-800/50 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all border border-transparent hover:border-rose-500/20">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php } ?>
-                        
-                        <?php if($data->num_rows == 0) { ?>
-                        <tr>
-                            <td colspan="4" class="px-8 py-20 text-center">
-                                <div class="flex flex-col items-center">
-                                    <span class="text-4xl mb-4 opacity-10">📦</span>
-                                    <p class="text-slate-600 text-xs font-bold uppercase tracking-widest">Database Kosong</p>
-                                </div>
+                            <td class="px-8 py-6 text-right">
+                                <span class="px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border <?= $current_status ?>">
+                                    <?= $d['status'] ?>
+                                </span>
                             </td>
                         </tr>
                         <?php } ?>
@@ -117,26 +130,6 @@ $data = $barangModel->getAll();
             </div>
         </div>
     </div>
-
-    <script>
-    function confirmDelete(url) {
-        Swal.fire({
-            title: 'Hapus Buku?',
-            text: "Data koleksi akan dihapus permanen dari sistem.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#2563eb',
-            cancelButtonColor: '#1e293b',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = url;
-            }
-        })
-    }
-    </script>
 
 </body>
 </html>
