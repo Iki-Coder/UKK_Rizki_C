@@ -115,7 +115,7 @@ $countTransaksi = $koneksi->query("SELECT COUNT(*) as total FROM transaksi WHERE
             </a>
             <a href="../transaksi/index.php" class="glass-card p-8 rounded-[2.5rem] border-indigo-500/30 bg-indigo-600/10 hover:-translate-y-2 transition-all duration-300 text-center flex flex-col items-center group">
                 <div class="h-16 w-16 rounded-2xl bg-indigo-600/20 mb-5 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">📄</div>
-                <span class="text-[11px] font-black text-indigo-400 uppercase tracking-widest">Input Pinjam</span>
+                <span class="text-[11px] font-black text-indigo-400 uppercase tracking-widest">Peminjaman</span>
             </a>
             <a href="../report/index.php" class="glass-card p-8 rounded-[2.5rem] border-emerald-500/30 bg-emerald-600/10 hover:-translate-y-2 transition-all duration-300 text-center flex flex-col items-center group">
                 <div class="h-16 w-16 rounded-2xl bg-emerald-600/20 mb-5 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">📊</div>

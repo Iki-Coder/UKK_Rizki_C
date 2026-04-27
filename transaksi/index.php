@@ -14,6 +14,8 @@ if (!isset($_SESSION['login'])) {
     exit;
 }
 
+$dashboard_url = ($_SESSION['role'] == 'admin') ? '../admin/index.php' : '../petugas/index.php';
+
 $data = $koneksi->query("
     SELECT t.*, p.username 
     FROM transaksi t 
@@ -32,16 +34,10 @@ $data = $koneksi->query("
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #080b14;
-            color: #f1f5f9;
-        }
-        .glass-card {
-            background: rgba(17, 24, 39, 0.4);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #05070a; color: #f1f5f9; }
+        .glass-card { background: rgba(17, 24, 39, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .status-badge { transition: all 0.3s ease; }
+        tr:hover .status-badge { transform: scale(1.05); }
     </style>
 </head>
 <body class="min-h-screen p-6 md:p-12 relative overflow-x-hidden">
@@ -52,76 +48,93 @@ $data = $koneksi->query("
     </div>
 
     <div class="max-w-7xl mx-auto relative z-10">
+        
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div>
-
-                <h2 class="text-4xl font-black tracking-tighter text-white">Manajemen Peminjaman</h2>
-                <p class="text-slate-500 mt-2 font-medium">Kelola persetujuan dan lihat riwayat</p>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="h-[2px] w-12 bg-blue-600 rounded-full"></div>
+                    <span class="text-xs font-black text-blue-500 uppercase tracking-[0.4em]">Sirkulasi Barang</span>
+                </div>
+                <h2 class="text-4xl font-black tracking-tighter text-white uppercase">Manajemen Peminjaman <span class="text-blue-500">.</span></h2>
+                <p class="text-slate-500 mt-2 font-medium">Pantau riwayat peminjaman dan lakukan verifikasi pengembalian.</p>
             </div>
             
             <div class="flex items-center gap-4">
-                <a href="../admin/index.php" class="px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all border border-white/5 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                <a href="<?= $dashboard_url ?>" class="px-6 py-3.5 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all border border-white/5 flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     Dashboard
                 </a>
-                <a href="tambah.php" class="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                <a href="tambah.php" class="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20 flex items-center gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
                     Input Manual
                 </a>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <a href="persetujuan.php" class="glass-card p-6 rounded-[2rem] flex items-center justify-between group hover:bg-white/[0.05] transition-all border-amber-500/10">
-                <div class="flex items-center gap-5">
-                    <div class="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <a href="persetujuan.php" class="glass-card p-8 rounded-[2.5rem] flex items-center justify-between group hover:border-amber-500/30 transition-all">
+                <div class="flex items-center gap-6">
+                    <div class="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
                     <div>
-                        <h3 class="text-white font-bold text-sm tracking-tight text-white uppercase">Butuh Persetujuan</h3>
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest font-black mt-0.5">Cek Permintaan Baru</p>
+                        <h3 class="text-white font-black text-sm tracking-widest uppercase mb-1">Butuh Persetujuan</h3>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest font-black">Cek antrean permintaan baru</p>
                     </div>
                 </div>
-                <div class="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-amber-500 group-hover:translate-x-1 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                <div class="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-amber-500 group-hover:translate-x-2 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
                 </div>
             </a>
         </div>
 
-        <div class="glass-card rounded-[2.5rem] overflow-hidden shadow-2xl">
+        <div class="glass-card rounded-[2.5rem] overflow-hidden shadow-2xl border-white/5">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-white/[0.02] text-slate-500 text-[10px] uppercase tracking-[0.2em] font-black border-b border-white/5">
-                            <th class="px-8 py-6">ID Log</th>
-                            <th class="px-8 py-6">User / Peminjam</th>
-                            <th class="px-8 py-6">Timeline</th>
-                            <th class="px-8 py-6 text-right">Status</th>
+                        <tr class="bg-white/[0.02] text-slate-500 text-[10px] uppercase tracking-[0.3em] font-black border-b border-white/5">
+                            <th class="px-10 py-8">Log ID</th>
+                            <th class="px-10 py-8">Informasi Peminjam</th>
+                            <th class="px-10 py-8">Timeline</th>
+                            <th class="px-10 py-8 text-right">Status & Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
-                        <?php $no=1; while($d = $data->fetch_assoc()) { 
+                        <?php while($d = $data->fetch_assoc()) { 
+                            $st = strtolower($d['status']);
                             $status_ui = [
-                                'menunggu' => 'text-slate-400 bg-slate-500/10 border-slate-500/10',
                                 'dipinjam' => 'text-amber-500 bg-amber-500/10 border-amber-500/10',
-                                'kembali'  => 'text-emerald-500 bg-emerald-500/10 border-emerald-500/10'
+                                'menunggu pengecekan' => 'text-blue-400 bg-blue-500/10 border-blue-400/20',
+                                'kembali'  => 'text-emerald-500 bg-emerald-500/10 border-emerald-500/10',
+                                'rusak'    => 'text-rose-500 bg-rose-500/10 border-rose-500/10'
                             ];
-                            $current_status = $status_ui[$d['status']] ?? 'text-slate-400';
+                            $current_status = $status_ui[$st] ?? 'text-slate-400 bg-slate-500/10 border-slate-500/10';
                         ?>
                         <tr class="hover:bg-white/[0.03] transition-all group">
-                            <td class="px-8 py-6 font-mono text-xs text-slate-600">#<?= $d['id'] ?></td>
-                            <td class="px-8 py-6">
-                                <div class="text-white font-bold group-hover:text-blue-400 transition-colors uppercase tracking-tight"><?= $d['username'] ?></div>
-                                <div class="text-[9px] text-slate-600 mt-1 uppercase font-black tracking-widest">Siswa Terdaftar</div>
+                            <td class="px-10 py-8 font-mono text-xs text-slate-600">#<?= str_pad($d['id'], 3, '0', STR_PAD_LEFT) ?></td>
+                            <td class="px-10 py-8">
+                                <div class="text-white font-bold group-hover:text-blue-400 transition-colors uppercase tracking-tight text-base mb-1"><?= $d['username'] ?></div>
+                                <div class="text-[10px] text-slate-600 uppercase font-black tracking-[0.2em]">Siswa Terdaftar</div>
                             </td>
-                            <td class="px-8 py-6">
-                                <div class="text-xs font-bold text-slate-300"><?= date('d M Y', strtotime($d['tanggal_pinjam'])) ?></div>
-                                <div class="text-[9px] text-slate-600 mt-1 uppercase font-black tracking-widest">Est. Kembali: <?= date('d M Y', strtotime($d['tanggal_kembali'])) ?></div>
+                            <td class="px-10 py-8">
+                                <div class="text-sm font-bold text-slate-300 mb-1"><?= date('d M Y', strtotime($d['tanggal_pinjam'])) ?></div>
+                                <div class="text-[10px] text-slate-600 uppercase font-black tracking-widest">Estimasi: <?= date('d M Y', strtotime($d['tanggal_kembali'])) ?></div>
                             </td>
-                            <td class="px-8 py-6 text-right">
-                                <span class="px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border <?= $current_status ?>">
-                                    <?= $d['status'] ?>
-                                </span>
+                            <td class="px-10 py-8">
+                                <div class="flex items-center justify-end gap-4">
+                                    <span class="status-badge px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] border <?= $current_status ?>">
+                                        <?= $d['status'] ?: 'PENDING' ?>
+                                    </span>
+
+                                    <?php if($st != 'kembali' && $st != 'rusak'): ?>
+                                        <a href="verifikasi_kembali.php?id=<?= $d['id'] ?>" 
+                                           class="h-10 w-10 bg-blue-600 text-white rounded-xl flex items-center justify-center transition-all shadow-lg shadow-blue-600/20 hover:scale-110">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                         </tr>
                         <?php } ?>

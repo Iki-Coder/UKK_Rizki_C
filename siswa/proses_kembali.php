@@ -1,40 +1,33 @@
 <?php
 session_start();
-
 require '../config/Database.php';
-require '../models/Transaksi.php';
 
 $db = new Database();
 $koneksi = $db->koneksi;
-
-$transaksi = new Transaksi($koneksi);
 
 if (!isset($_SESSION['login']) || $_SESSION['role'] != 'siswa') {
     header("Location: ../auth/login.php");
     exit;
 }
 
-$id = $_GET['id'];
+$id_transaksi = isset($_GET['id']) ? mysqli_real_escape_string($koneksi, $_GET['id']) : null;
 
-$detail = $koneksi->query("
-    SELECT d.*, b.id as id_barang 
-    FROM detail_transaksi d
-    JOIN barang b ON d.id_barang = b.id
-    WHERE d.id_transaksi='$id'
-");
+if ($id_transaksi) {
+    $id_user = $_SESSION['id'];
+    
+    $cek = $koneksi->query("SELECT * FROM transaksi WHERE id='$id_transaksi' AND id_pengguna='$id_user' AND status='dipinjam'");
 
-while ($d = $detail->fetch_assoc()) {
-    $koneksi->query("
-        UPDATE barang 
-        SET stok = stok + {$d['jumlah']} 
-        WHERE id='{$d['id_barang']}'
-    ");
+    if ($cek->num_rows > 0) {
+        $query = "UPDATE transaksi SET status='menunggu pengecekan' WHERE id='$id_transaksi'";
+        
+        if ($koneksi->query($query)) {
+            // DIUBAH: Mengarah ke kembali.php sesuai nama file yang kamu punya
+            header("Location: kembali.php?status=pending");
+            exit;
+        }
+    }
 }
 
-$koneksi->query("
-    UPDATE transaksi 
-    SET status='kembali' 
-    WHERE id='$id'
-");
-
+// DIUBAH: Mengarah ke kembali.php
 header("Location: kembali.php");
+exit;
