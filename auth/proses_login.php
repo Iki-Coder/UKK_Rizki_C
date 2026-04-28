@@ -1,11 +1,9 @@
 <?php
 session_start();
 require '../config/Database.php';
-require '../models/Log.php';
 
 $db = new Database();
 $koneksi = $db->koneksi;
-$log = new Log($koneksi);
 
 if (isset($_POST['login'])) {
     $identifier = mysqli_real_escape_string($koneksi, $_POST['identifier']);
@@ -18,13 +16,13 @@ if (isset($_POST['login'])) {
         $row = mysqli_fetch_assoc($result);
 
         if (password_verify($password, $row['password'])) {
+            // Set session
             $_SESSION['login'] = true;
             $_SESSION['id']    = $row['id'];
             $_SESSION['username'] = $row['username'];
             $_SESSION['role']  = $row['role'];
 
-            $log->add($row['id'], "Berhasil login ke sistem", $row['role']);
-
+            // Redirect sesuai role
             if ($row['role'] == 'admin') {
                 header("Location: ../admin/index.php");
             } elseif ($row['role'] == 'petugas') {
