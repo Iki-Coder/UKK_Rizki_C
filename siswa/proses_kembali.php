@@ -2,32 +2,42 @@
 session_start();
 require '../config/Database.php';
 
-$db = new Database();
-$koneksi = $db->koneksi;
-
-if (!isset($_SESSION['login']) || $_SESSION['role'] != 'siswa') {
-    header("Location: ../auth/login.php");
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['id'])) {
+    header("Location: kembali.php");
     exit;
 }
 
-$id_transaksi = isset($_GET['id']) ? mysqli_real_escape_string($koneksi, $_GET['id']) : null;
+$db = new Database();
+$koneksi = $db->koneksi;
 
-if ($id_transaksi) {
-    $id_user = $_SESSION['id'];
+$id_transaksi = $_POST['id'];
+$jumlah_kembali = (int)$_POST['jumlah_kembali'];
+
+// 1. Cek data transaksi awal
+$query = $koneksi->query("SELECT d.jumlah, d.id_barang FROM detail_transaksi d WHERE d.id_transaksi = '$id_transaksi'");
+$detail = $query->fetch_assoc();
+$jumlah_awal = (int)$detail['jumlah'];
+
+if ($jumlah_kembali >= $jumlah_awal) {
+    // JIKA KEMBALI SEMUA: Ubah status transaksi jadi menunggu pengecekan
+    $koneksi->query("UPDATE transaksi SET status = 'menunggu pengecekan' WHERE id = '$id_transaksi'");
+} else {
+    $jumlah_sisa = $jumlah_awal - $jumlah_kembali;
+    $koneksi->query("UPDATE detail_transaksi SET jumlah = '$jumlah_sisa' WHERE id_transaksi = '$id_transaksi'");
+
+    $trx = $koneksi->query("SELECT * FROM transaksi WHERE id = '$id_transaksi'")->fetch_assoc();
+    $id_user = $trx['id_pengguna'];
+    $tgl_pinjam = $trx['tanggal_pinjam'];
+    $tgl_kembali = $trx['tanggal_kembali'];
+    $id_barang = $detail['id_barang'];
+
+    $koneksi->query("INSERT INTO transaksi (id_pengguna, tanggal_pinjam, tanggal_kembali, status) 
+                     VALUES ('$id_user', '$tgl_pinjam', '$tgl_kembali', 'menunggu pengecekan')");
+    $new_id = $koneksi->insert_id;
     
-    $cek = $koneksi->query("SELECT * FROM transaksi WHERE id='$id_transaksi' AND id_pengguna='$id_user' AND status='dipinjam'");
-
-    if ($cek->num_rows > 0) {
-        $query = "UPDATE transaksi SET status='menunggu pengecekan' WHERE id='$id_transaksi'";
-        
-        if ($koneksi->query($query)) {
-            // DIUBAH: Mengarah ke kembali.php sesuai nama file yang kamu punya
-            header("Location: kembali.php?status=pending");
-            exit;
-        }
-    }
+    $koneksi->query("INSERT INTO detail_transaksi (id_transaksi, id_barang, jumlah) 
+                     VALUES ('$new_id', '$id_barang', '$jumlah_kembali')");
 }
 
-// DIUBAH: Mengarah ke kembali.php
-header("Location: kembali.php");
+header("Location: index.php?status=success");
 exit;

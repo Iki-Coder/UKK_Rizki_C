@@ -24,7 +24,7 @@
             </a>
             <div class="flex items-center gap-6">
                 <a href="auth/login.php" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Masuk</a>
-                <a href="register.php" class="text-sm font-semibold bg-white text-black py-2.5 px-6 rounded-full hover:bg-slate-200 transition-all active:scale-95 shadow-lg shadow-white/5">
+                <a href="auth/register.php" class="text-sm font-semibold bg-white text-black py-2.5 px-6 rounded-full hover:bg-slate-200 transition-all active:scale-95 shadow-lg shadow-white/5">
                     Daftar Akun
                 </a>
             </div>

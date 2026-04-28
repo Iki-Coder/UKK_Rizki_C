@@ -86,7 +86,7 @@ $user = $pengguna->getById($id);
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-16 gap-8">
             <div class="max-w-2xl">
                 <h2 class="text-5xl font-black tracking-tighter text-white mb-4 leading-tight">Kelola Sirkulasi</h2>
-                <p class="text-slate-400 font-medium leading-relaxed">Selamat datang kembali. Sistem siap untuk memverifikasi peminjaman, mengelola pengembalian, dan menyusun laporan hari ini.</p>
+                <p class="text-slate-400 font-medium leading-relaxed">Selamat datang kembali. Sistem siap untuk memverifikasi peminjaman, mengelola pengembalian, dan menyusun laporan.</p>
             </div>
         </div>
 

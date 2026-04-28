@@ -1,37 +1,45 @@
 <?php
 session_start();
-
 require '../config/Database.php';
-require '../models/Pengguna.php';
+require '../models/Log.php';
 
 $db = new Database();
 $koneksi = $db->koneksi;
-
-$pengguna = new Pengguna($koneksi);
+$log = new Log($koneksi);
 
 if (isset($_POST['login'])) {
-    $username = $_POST['username'];
+    $identifier = mysqli_real_escape_string($koneksi, $_POST['identifier']);
     $password = $_POST['password'];
 
-    $user = $pengguna->login($username);
+    $query = "SELECT * FROM pengguna WHERE username = '$identifier' OR email = '$identifier'";
+    $result = mysqli_query($koneksi, $query);
 
-    if ($user && password_verify($password, $user['password'])) {
+    if (mysqli_num_rows($result) === 1) {
+        $row = mysqli_fetch_assoc($result);
 
-        $_SESSION['login'] = true;
-        $_SESSION['id'] = $user['id'];
-        $_SESSION['role'] = $user['role'];
-        $_SESSION['username'] = $user['username'];
+        if (password_verify($password, $row['password'])) {
+            $_SESSION['login'] = true;
+            $_SESSION['id']    = $row['id'];
+            $_SESSION['username'] = $row['username'];
+            $_SESSION['role']  = $row['role'];
 
-        if ($user['role'] == 'admin') {
-            header("Location: ../admin/index.php");
-        } elseif ($user['role'] == 'petugas') {
-            header("Location: ../petugas/index.php");
+            $log->add($row['id'], "Berhasil login ke sistem", $row['role']);
+
+            if ($row['role'] == 'admin') {
+                header("Location: ../admin/index.php");
+            } elseif ($row['role'] == 'petugas') {
+                header("Location: ../petugas/index.php");
+            } else {
+                header("Location: ../siswa/index.php");
+            }
+            exit;
         } else {
-            header("Location: ../siswa/index.php");
+            $_SESSION['error'] = "Password salah!";
         }
-
     } else {
-        echo "<script>alert('Login gagal');window.location='login.php';</script>";
+        $_SESSION['error'] = "Akun tidak ditemukan!";
     }
+    
+    header("Location: login.php");
+    exit;
 }
-?>

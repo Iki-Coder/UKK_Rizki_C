@@ -5,56 +5,66 @@ require '../config/Database.php';
 $db = new Database();
 $koneksi = $db->koneksi;
 
-// Proteksi halaman
 if (!isset($_SESSION['login']) || ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'petugas')) {
     header("Location: ../auth/login.php");
     exit;
 }
 
-// Ambil ID dari URL
-$id_transaksi = isset($_GET['id']) ? $_GET['id'] : null;
+$id_transaksi = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-if (!$id_transaksi) {
+if ($id_transaksi <= 0) {
     header("Location: index.php");
     exit;
 }
 
-// Ambil data detail transaksi untuk verifikasi
-$query = "SELECT t.*, p.username, b.nama_barang, d.id_barang, d.jumlah 
-          FROM transaksi t 
-          JOIN pengguna p ON t.id_pengguna = p.id 
-          JOIN detail_transaksi d ON t.id = d.id_transaksi
-          JOIN barang b ON d.id_barang = b.id
-          WHERE t.id = '$id_transaksi'";
+$query = "
+    SELECT t.*, p.username, b.nama_barang, d.id_barang, d.jumlah 
+    FROM transaksi t 
+    JOIN pengguna p ON t.id_pengguna = p.id 
+    JOIN detail_transaksi d ON t.id = d.id_transaksi
+    JOIN barang b ON d.id_barang = b.id
+    WHERE t.id = '$id_transaksi'
+";
 
 $result = $koneksi->query($query);
 $data = $result->fetch_assoc();
 
-// Jika data tidak ditemukan atau status bukan 'dipinjam'
-if (!$data || $data['status'] != 'dipinjam') {
+if (!$data || strtolower($data['status']) != 'menunggu pengecekan') {
     header("Location: index.php");
     exit;
 }
 
-// Proses Update saat form dikirim
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $status_verifikasi = $_POST['status_verifikasi']; // 'kembali' atau 'rusak'
+
+    // 🔥 kondisi dari form
+    $kondisi = $_POST['kondisi'];
     $catatan = mysqli_real_escape_string($koneksi, $_POST['catatan']);
     $id_barang = $data['id_barang'];
-    $jumlah_kembali = $data['jumlah'];
+    $jumlah = $data['jumlah'];
 
-    // 1. Update status transaksi dan simpan catatan
-    $update_transaksi = "UPDATE transaksi SET 
-                         status = '$status_verifikasi', 
-                         catatan_petugas = '$catatan',
-                         tanggal_verifikasi = NOW() 
-                         WHERE id = '$id_transaksi'";
+    // 🔥 status SELALU kembali (karena proses selesai)
+    $status = 'kembali';
 
-    if ($koneksi->query($update_transaksi)) {
-        // 2. Kembalikan stok ke gudang (Tabel Barang)
-        $koneksi->query("UPDATE barang SET stok = stok + $jumlah_kembali WHERE id = '$id_barang'");
-        
-        header("Location: index.php?msg=success_verif");
+    $update = "
+        UPDATE transaksi SET 
+            status = '$status',
+            kondisi = '$kondisi',
+            catatan_petugas = '$catatan'
+        WHERE id = '$id_transaksi'
+    ";
+
+    if ($koneksi->query($update)) {
+
+        // 🔥 stok balik cuma kalau kondisi normal
+        if ($kondisi == 'normal') {
+            $koneksi->query("
+                UPDATE barang 
+                SET stok = stok + $jumlah 
+                WHERE id = '$id_barang'
+            ");
+        }
+
+        header("Location: index.php");
         exit;
     }
 }
@@ -111,19 +121,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             </div>
 
-            <form action="" method="POST" class="space-y-6">
+            <form method="POST" class="space-y-6">
                 
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Kondisi Pengembalian</label>
-                    <select name="status_verifikasi" required class="w-full bg-slate-800/50 border border-white/10 p-4 rounded-2xl focus:outline-none focus:border-blue-500 transition-all font-bold text-sm">
-                        <option value="kembali">BAIK</option>
+                    <select name="kondisi" required class="w-full bg-slate-800/50 border border-white/10 p-4 rounded-2xl focus:outline-none focus:border-blue-500 transition-all font-bold text-sm">
+                        <option value="normal">BAIK</option>
                         <option value="rusak">RUSAK</option>
+                        <option value="hilang">HILANG</option>
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Catatan Pemeriksaan</label>
-                    <textarea name="catatan" placeholder="Contoh: Barang kembali dengan box sedikit lecet..." class="w-full bg-slate-800/50 border border-white/10 p-4 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-sm h-32"></textarea>
+                    <textarea name="catatan" class="w-full bg-slate-800/50 border border-white/10 p-4 rounded-2xl focus:outline-none focus:border-blue-500 transition-all text-sm h-32"></textarea>
                 </div>
 
                 <div class="flex items-center gap-4 pt-4">
@@ -137,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </form>
         </div>
 
-        <p class="text-center mt-8 text-[9px] font-black text-slate-700 uppercase tracking-[0.5em]">Bibliotech Digital Inspector &bull; V.3.0</p>
+        <p class="text-center mt-8 text-[9px] font-black text-slate-700 uppercase tracking-[0.5em]">Bibliotech Digital Inspector • V.3.0</p>
     </div>
 
 </body>

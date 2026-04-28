@@ -74,7 +74,7 @@ $data = $barangModel->getAll();
         <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
             <div>
                 <h2 class="text-3xl font-extrabold tracking-tight">Inventory Buku</h2>
-                <p class="opacity-50 text-sm font-medium italic">Total <?= $data->num_rows ?> buku terdaftar.</p>
+                <p class="opacity-50 text-sm font-medium italic">Total <?= $data->num_rows ?> title buku terdaftar.</p>
             </div>
             
             <div class="relative w-full md:w-80">
@@ -90,8 +90,8 @@ $data = $barangModel->getAll();
                 <table class="w-full text-left">
                     <thead>
                         <tr class="border-b border-[var(--border-color)] bg-slate-500/5 text-[10px] font-black uppercase tracking-[0.2em] opacity-60">
-                            <th class="px-8 py-5 text-center">ID</th>
-                            <th class="px-6 py-5">Nama Barang</th>
+                            <th class="px-8 py-5 text-center">Cover</th>
+                            <th class="px-6 py-5">Informasi Buku</th>
                             <th class="px-6 py-5">Kategori</th>
                             <th class="px-6 py-5 text-center">Persediaan</th>
                             <th class="px-8 py-5 text-right">Aksi</th>
@@ -100,11 +100,20 @@ $data = $barangModel->getAll();
                     <tbody class="divide-y divide-[var(--border-color)]">
                         <?php $no=1; while($d = $data->fetch_assoc()) { ?>
                         <tr class="hover:bg-slate-500/5 transition-colors group">
-                            <td class="px-8 py-6 text-center text-xs font-bold opacity-30 italic">
-                                #<?= str_pad($no++, 3, '0', STR_PAD_LEFT) ?>
+                            <td class="px-8 py-6">
+                                <div class="w-16 h-24 rounded-xl overflow-hidden border border-[var(--border-color)] shadow-sm">
+                                    <?php if(!empty($d['cover'])): ?>
+                                        <img src="../uploads/<?= $d['cover'] ?>" alt="Cover" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                    <?php else: ?>
+                                        <div class="w-full h-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold opacity-30">NO COVER</div>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                             <td class="px-6 py-6">
-                                <span class="font-bold text-base tracking-tight"><?= $d['nama_barang'] ?></span>
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-base tracking-tight"><?= $d['nama_barang'] ?></span>
+                                    <span class="text-[10px] font-black opacity-30 italic mt-1 uppercase tracking-widest">ID: #<?= str_pad($no++, 3, '0', STR_PAD_LEFT) ?></span>
+                                </div>
                             </td>
                             <td class="px-6 py-6">
                                 <span class="px-4 py-1.5 bg-blue-600/10 text-blue-600 dark:text-blue-400 rounded-lg text-[10px] font-extrabold uppercase tracking-widest border border-blue-600/10">
@@ -112,7 +121,7 @@ $data = $barangModel->getAll();
                                 </span>
                             </td>
                             <td class="px-6 py-6 text-center">
-                                <span class="text-sm font-black <?= $d['stok'] > 5 ? 'text-[var(--text-main)]' : 'text-rose-500 animate-pulse' ?>">
+                                <span class="text-sm font-black <?= $d['stok'] ?>">
                                     <?= $d['stok'] ?> Unit
                                 </span>
                             </td>
@@ -143,13 +152,6 @@ $data = $barangModel->getAll();
             </div>
         </div>
 
-        <footer class="mt-10 flex flex-col md:flex-row justify-between items-center px-4 gap-4 opacity-30">
-            <p class="text-[9px] font-black uppercase tracking-[0.5em]">&copy; 2026 Bibliotech Management System</p>
-            <div class="flex gap-4 text-[10px] font-bold">
-                <span class="text-emerald-500 italic">● System Online</span>
-                <span>v3.0.4 Premium</span>
-            </div>
-        </footer>
     </main>
 
     <script>
@@ -173,4 +175,4 @@ $data = $barangModel->getAll();
     </script>
 
 </body>
-</html>
+</html> 

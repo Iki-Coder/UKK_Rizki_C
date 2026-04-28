@@ -16,18 +16,37 @@ $id = $_GET['id'];
 $data = $barangModel->getById($id);
 
 if (isset($_POST['update'])) {
-    $nama = $_POST['nama'];
+    $nama = mysqli_real_escape_string($koneksi, $_POST['nama']);
     $jenis = $_POST['jenis'];
     $stok = $_POST['stok'];
+    $deskripsi = mysqli_real_escape_string($koneksi, $_POST['deskripsi']);
+    
+    $nama_file = $data['cover'];
+
+    if ($_FILES['cover']['error'] === 0) {
+        $ekstensi_valid = ['jpg', 'jpeg', 'png'];
+        $ekstensi_file = strtolower(pathinfo($_FILES['cover']['name'], PATHINFO_EXTENSION));
+
+        if (in_array($ekstensi_file, $ekstensi_valid) && $_FILES['cover']['size'] <= 2000000) {
+            if ($data['cover'] && file_exists('../uploads/' . $data['cover'])) {
+                unlink('../uploads/' . $data['cover']);
+            }
+            $nama_file = uniqid() . '.' . $ekstensi_file;
+            move_uploaded_file($_FILES['cover']['tmp_name'], '../uploads/' . $nama_file);
+        }
+    }
 
     $koneksi->query("UPDATE barang SET 
         nama_barang='$nama',
         jenis='$jenis',
-        stok='$stok'
+        stok='$stok',
+        deskripsi='$deskripsi',
+        cover='$nama_file'
         WHERE id='$id'
     ");
 
     header("Location: index.php");
+    exit;
 }
 ?>
 
@@ -36,74 +55,139 @@ if (isset($_POST['update'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Barang | Inventaris</title>
+    <title>Edit Koleksi | Bibliotech</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #0b0e1a;
+            color: #f1f5f9;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .input-style {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .input-style:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+        select option {
+            background-color: #ffffff;
+            color: #000000;
+        }
     </style>
 </head>
-<body class="bg-[#0f172a] text-slate-200 min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen py-12 px-4 flex items-center justify-center">
 
-    <div class="w-full max-w-lg">
-        <a href="index.php" class="inline-flex items-center text-slate-400 hover:text-amber-400 mb-6 transition-colors group">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Batal & Kembali
+    <div class="w-full max-w-4xl">
+        <a href="index.php" class="inline-flex items-center text-slate-500 hover:text-white mb-8 transition-all group">
+            <div class="p-2 rounded-lg bg-white/5 mr-3 group-hover:bg-white/10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </div>
+            <span class="font-bold text-sm tracking-widest uppercase">Kembali</span>
         </a>
 
-        <div class="bg-slate-800/50 backdrop-blur-xl border border-slate-700 rounded-3xl shadow-2xl p-8 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full -mr-12 -mt-12 blur-2xl"></div>
-            
-            <div class="mb-8 relative">
-                <h2 class="text-2xl font-bold text-white">Edit Data Barang</h2>
-                <p class="text-slate-400 text-sm mt-1">ID Barang: <span class="text-amber-500 font-mono">#<?= $id ?></span></p>
-            </div>
-
-            <form method="POST" class="space-y-6">
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Nama Barang</label>
-                    <input type="text" name="nama" value="<?= $data['nama_barang'] ?>" required
-                        class="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Kategori/Jenis</label>
-                    <div class="relative">
-                        <select name="jenis" 
-                            class="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white appearance-none focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all text-sm">
-                            <option value="buku" <?= $data['jenis']=='buku'?'selected':'' ?>>Buku</option>
-                            <option value="alat" <?= $data['jenis']=='alat'?'selected':'' ?>>Alat Elektronik</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        <div class="glass-card rounded-[2.5rem] shadow-2xl overflow-hidden">
+            <div class="flex flex-col lg:flex-row">
+                
+                <div class="lg:w-1/3 bg-white/5 p-10 flex flex-col items-center justify-center border-b lg:border-b-0 lg:border-r border-white/5">
+                    <div class="relative group w-full max-w-[200px]">
+                        <div class="aspect-[3/4] rounded-2xl overflow-hidden bg-slate-900 shadow-2xl border border-white/10">
+                            <?php if($data['cover']): ?>
+                                <img id="preview" src="../uploads/<?= $data['cover'] ?>" class="w-full h-full object-cover">
+                            <?php else: ?>
+                                <div id="placeholder" class="w-full h-full flex flex-col items-center justify-center opacity-20">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">No Cover</span>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Jumlah Stok</label>
-                    <input type="number" name="stok" value="<?= $data['stok'] ?>" required
-                        class="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
-                </div>
+                <div class="lg:w-2/3 p-8 md:p-12">
+                    <header class="mb-10">
+                        <h2 class="text-3xl font-black text-white tracking-tighter uppercase">Edit <span class="text-blue-500">Koleksi.</span></h2>
+                    </header>
 
-                <div class="pt-4">
-                    <button name="update" 
-                        class="w-full py-4 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-amber-500/20 transition-all transform active:scale-[0.98] flex items-center justify-center group">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        Simpan Perubahan
-                    </button>
+                    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 px-1">Nama Barang / Judul</label>
+                            <input type="text" name="nama" value="<?= $data['nama_barang'] ?>" required
+                                class="input-style w-full px-6 py-4 rounded-2xl font-semibold">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 px-1">Kategori</label>
+                                <select name="jenis" class="input-style w-full px-6 py-4 rounded-2xl font-semibold appearance-none">
+                                    <option value="fiksi" <?= $data['jenis']=='fiksi'?'selected':'' ?>>Buku Fiksi</option>
+                                    <option value="non-fiksi" <?= $data['jenis']=='non-fiksi'?'selected':'' ?>>Buku Non-Fiksi</option>
+                                    <option value="akademik" <?= $data['jenis']=='akademik'?'selected':'' ?>>Buku Akademik</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 px-1">Jumlah Stok</label>
+                                <input type="number" name="stok" value="<?= $data['stok'] ?>" required
+                                    class="input-style w-full px-6 py-4 rounded-2xl font-bold">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 px-1">Ganti Cover (Opsional)</label>
+                            <input type="file" name="cover" accept="image/*" onchange="previewImage(this)"
+                                class="w-full text-xs text-slate-400 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition-all cursor-pointer">
+                        </div>
+
+                        <div class="pt-6">
+                            <button name="update" 
+                                class="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Simpan
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
-
-        <p class="text-center mt-8 text-slate-600 text-[10px] tracking-widest uppercase italic">
-            Perubahan data akan langsung tercatat di database
-        </p>
     </div>
+
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('preview');
+            const placeholder = document.getElementById('placeholder');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if(preview) {
+                        preview.src = e.target.result;
+                    } else {
+                        const img = document.createElement('img');
+                        img.id = 'preview';
+                        img.src = e.target.result;
+                        img.className = 'w-full h-full object-cover';
+                        placeholder.parentNode.appendChild(img);
+                        placeholder.remove();
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 
 </body>
 </html>
